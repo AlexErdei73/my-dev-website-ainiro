@@ -9,7 +9,7 @@ async function getJSON(response) {
 }
 
 export async function login(username, password) {
-  const response = await fetch(`${BASE_URL}/users/login`, {
+  const response = await fetch('https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/login', {
     method: "POST",
     mode: "cors",
     headers: { "Content-Type": "application/json" },
@@ -19,6 +19,13 @@ export async function login(username, password) {
     }),
   });
   const json = await response.json();
+  //AINIRO response in case of error contains message field instead of msg
+  if (!json.success) json.msg = json.message;
+  //AINIRO returns an array as user
+  json.user = json.user[0];
+  //AINIRO database stores isAdmin as int and _id as user_id as default
+  json.user._id = json.user.user_id;
+  json.user.isAdmin = !!json.user.isAdmin;
   return json;
 }
 
