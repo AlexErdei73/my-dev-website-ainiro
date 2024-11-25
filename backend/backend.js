@@ -33,9 +33,7 @@ export async function login(username, password) {
 }
 
 export async function updatePost(post, token) {
-	console.log(post);
 	const { _id, author, content, likes, title } = { ...post };
-	console.log(_id);
 	const payload = {
 		post_id: _id,
 		author: author._id,
@@ -87,7 +85,7 @@ export async function updateBlock(block, token) {
 		success: false,
 	};
 	if (response.status < 300) {
-		//block._id = block.block_id;
+		//AINIRO response contain the _id as block_id
 		delete block.block_id;
 		res.block = block;
 		res.success = true;
@@ -139,35 +137,26 @@ export async function createBlock(block, token) {
 		}
 	);
 	const json = await response.json();
-	console.log(json);
 	if (response.status < 300 && json.id) {
 		res.success = true;
 		res.block._id = json.id;
-		console.log(block.post);
 		const post = await getPost(block.post);
-		console.log(post.content);
 		post.content = !post.content ? [] : post.content;
 		post.content = Array.isArray(post.content)
 			? post.content
 			: Array.from(post.content);
 		post.content.push(json.id);
-		console.log(post.content);
-		//post.content = JSON.stringify(post.content);
-		console.log(post);
 		const { author, type, post_id, content, likes } = post;
-		console.log(
-			await putPost(
-				{
-					author,
-					type,
-					content,
-					likes,
-					post_id,
-				},
-				token
-			)
+		await putPost(
+			{
+				author,
+				type,
+				content,
+				likes,
+				post_id,
+			},
+			token
 		);
-		console.log(res);
 		return res;
 	} else {
 		res.errors.push[{ msg: json.message }];
@@ -198,7 +187,6 @@ export async function getPosts() {
 		},
 	});
 	const json = await response.json();
-	console.log(json);
 	return json;
 }
 

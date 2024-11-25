@@ -63,8 +63,8 @@ export async function insertBlock(block) {
 	} catch (error) {
 		newBlock.errors.push({ msg: error.message });
 	} finally {
-		console.log(newBlock);
-		if (!newBlock._id) newBlock._id = i + index;
+    //AINIRO uses number IDs, so we cannot, we add an "i"
+		if (!newBlock._id) newBlock._id = "i" + index;
 		if (index === 0 && _post.content.length === 1) {
 			const lastNode = document.querySelector(".post .post-title");
 			lastNode.parentNode.appendChild(initBlock(newBlock, true));

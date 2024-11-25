@@ -26,7 +26,6 @@ function addLinks(text, links) {
 }
 
 export function initBlock(block, edit) {
-	console.log(block);
 	let blockNode = document.createElement("div");
 	blockNode.classList.add("block");
 	blockNode.setAttribute("data-blockid", block._id);

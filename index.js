@@ -206,7 +206,6 @@ export async function submitBlock(block) {
 	} catch (error) {
 		block.errors = [{ msg: error.message }];
 	} finally {
-		console.log(block);
 		const blockNode = initBlock(block, true);
 		const oldBlockNode = document.querySelector(
 			`[data-blockid="${block._id}"]`
