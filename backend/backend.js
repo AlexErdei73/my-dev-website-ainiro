@@ -134,6 +134,10 @@ export async function createBlock(block, token) {
 		console.log(block.post);
 		const post = await getPost(block.post);
 		console.log(post.content);
+		post.content = !post.content ? [] : post.content;
+		post.content = Array.isArray(post.content)
+			? post.content
+			: Array.from(post.content);
 		post.content.push(json.id);
 		console.log(post.content);
 		//post.content = JSON.stringify(post.content);
