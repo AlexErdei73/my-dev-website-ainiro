@@ -43,7 +43,6 @@ export async function updatePost(post, token) {
 		likes,
 		title,
 	};
-	console.log(payload);
 	const response = await fetch(
 		`https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/posts`,
 		{
@@ -82,7 +81,20 @@ export async function updateBlock(block, token) {
 			body: JSON.stringify(payload),
 		}
 	);
-	return await getJSON(response);
+	const json = await response.json();
+	const res = {
+		errors: [],
+		success: false,
+	};
+	if (response.status < 300) {
+		//block._id = block.block_id;
+		delete block.block_id;
+		res.block = block;
+		res.success = true;
+	} else {
+		res.errors.push({ msg: json.message });
+	}
+	return res;
 }
 
 export async function getPost(ID) {
@@ -128,7 +140,7 @@ export async function createBlock(block, token) {
 	);
 	const json = await response.json();
 	console.log(json);
-	if (json.id) {
+	if (response.status < 300 && json.id) {
 		res.success = true;
 		res.block._id = json.id;
 		console.log(block.post);

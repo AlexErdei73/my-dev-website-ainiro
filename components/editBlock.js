@@ -29,7 +29,7 @@ export function initEditBlock(block) {
 	const cancelButton = editBlockNode.querySelector(".buttons .cancel");
 	const submitButton = editBlockNode.querySelector(".buttons .submit");
 	const swapButton = editBlockNode.querySelector(".buttons .swap");
-	//if (!isNaN(block._id)) submitButton.classList.add("hidden");
+	if (isNaN(block._id)) submitButton.classList.add("hidden");
 	const inputNode = importTemp(21);
 	const textareaNode = editBlockNode.querySelector(".input-container textarea");
 	const selectTypeNode = editBlockNode.querySelector("select#type");
@@ -57,7 +57,7 @@ export function initEditBlock(block) {
 	}
 	cancelButton.addEventListener("click", function () {
 		if (block.errors && block.errors.length !== 0) {
-			if (!isNaN(block._id)) removeBlock(block);
+			if (isNaN(block._id)) removeBlock(block);
 			else delete block.errors;
 		}
 		const blockNode = initBlock(block, true);
@@ -67,7 +67,9 @@ export function initEditBlock(block) {
 	});
 	editBlockNode.addEventListener("submit", function (event) {
 		event.preventDefault();
-		submitBlock(getNewBlock(block, editBlockNode));
+		const newBlock = getNewBlock(block, editBlockNode);
+		console.log(newBlock);
+		submitBlock(newBlock);
 	});
 	swapButton.addEventListener("click", function () {
 		swapBlocks();
