@@ -67,6 +67,8 @@ export async function updateBlock(block, token) {
 	payload.block_id = payload._id;
 	delete payload._id;
 	delete payload.errors;
+	//AINIRO stores links as string
+	payload.links = JSON.stringify(payload.links);
 	const response = await fetch(
 		`https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/blocks`,
 		{
@@ -99,6 +101,7 @@ export async function getPost(ID) {
 	const response = await fetch(
 		`https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/posts?posts.post_id.eq=${ID}`,
 		{
+			method: "GET",
 			mode: "cors",
 			headers: {
 				"Content-Type": "application/json",
@@ -180,14 +183,38 @@ export async function deleteBlock(block, token) {
 }
 
 export async function getPosts() {
-	const response = await fetch(`${BASE_URL}/posts`, {
-		mode: "cors",
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
-	const json = await response.json();
-	return json;
+	const response = await fetch(
+		"https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/posts",
+		{
+			method: "GET",
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}
+	);
+	//We get an array of posts
+	const jsonArr = await response.json();
+	//Popolate authors in posts
+	for (let i = 0; i < jsonArr.length; i++) {
+		const post = jsonArr[i];
+		const author = await getAuthor(post.author);
+		author._id = author.user_id;
+		delete author.user_id;
+		post.author = author;
+		post._id = post.post_id;
+		delete post.post_id;
+		post.published = post.published ? !!post.published : false;
+		post.likes = post.likes ? JSON.parse(post.likes) : [];
+		post.content = post.content ? JSON.parse(post.content) : [];
+		post.content = await getContent(post.content);
+	}
+	const res = {
+		success: true,
+		posts: jsonArr,
+	};
+	console.log(res);
+	return res;
 }
 
 export async function postPosts(post, token) {
@@ -284,4 +311,51 @@ async function putPost(post, token) {
 	);
 	const json = await response.json();
 	return json;
+}
+
+async function getAuthor(id) {
+	const response = await fetch(
+		`https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/users?users.user_id.eq=${id}`,
+		{
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}
+	);
+	const jsonArr = await response.json();
+	//AINIRO returns an array
+	const json = jsonArr[0];
+	return json;
+}
+
+async function getBlock(ID) {
+	const response = await fetch(
+		`https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/blocks?blocks.block_id.eq=${ID}`,
+		{
+			method: "GET",
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		}
+	);
+	const jsonArr = await response.json();
+	//AINIRO returns an array
+	const json = jsonArr[0];
+	//AINIRO returns null for empty array
+	if (!json.links) json.links = [];
+	json.links = JSON.parse(json.links);
+	//AINIRO uses post_id instead of _id
+	json._id = json.block_id;
+	delete json.block_id;
+	return json;
+}
+
+async function getContent(content) {
+	const res = [];
+	for (let i = 0; i < content.length; i++) {
+		res.push(await getBlock(content[i]));
+	}
+	return res;
 }

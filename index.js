@@ -55,7 +55,7 @@ export let loginData = {
 	msg: "",
 };
 
-const aboutID = "64b3b9fc11a583b26b48b476";
+const aboutID = 103;
 let postID;
 
 export function getPost(_postID) {
