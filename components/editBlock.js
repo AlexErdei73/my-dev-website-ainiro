@@ -29,9 +29,7 @@ export function initEditBlock(block) {
 	const cancelButton = editBlockNode.querySelector(".buttons .cancel");
 	const submitButton = editBlockNode.querySelector(".buttons .submit");
 	const swapButton = editBlockNode.querySelector(".buttons .swap");
-	//The _id starts with "i", if it is the index.
-	//We hide the submit button
-	if (isNaN(block._id)) submitButton.classList.add("hidden");
+	if (!isNaN(block._id)) submitButton.classList.add("hidden");
 	const inputNode = importTemp(21);
 	const textareaNode = editBlockNode.querySelector(".input-container textarea");
 	const selectTypeNode = editBlockNode.querySelector("select#type");
@@ -59,9 +57,7 @@ export function initEditBlock(block) {
 	}
 	cancelButton.addEventListener("click", function () {
 		if (block.errors && block.errors.length !== 0) {
-			//AINIRO use number _id, so we put "i" front of _id
-			//if it is the index
-			if (isNaN(block._id)) removeBlock(block);
+			if (!isNaN(block._id)) removeBlock(block);
 			else delete block.errors;
 		}
 		const blockNode = initBlock(block, true);

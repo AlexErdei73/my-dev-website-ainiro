@@ -63,8 +63,7 @@ export async function insertBlock(block) {
 	} catch (error) {
 		newBlock.errors.push({ msg: error.message });
 	} finally {
-    //AINIRO uses number IDs, so we cannot, we add an "i"
-		if (!newBlock._id) newBlock._id = "i" + index;
+		if (!newBlock._id) newBlock._id = index;
 		if (index === 0 && _post.content.length === 1) {
 			const lastNode = document.querySelector(".post .post-title");
 			lastNode.parentNode.appendChild(initBlock(newBlock, true));
@@ -88,8 +87,7 @@ export async function insertBlock(block) {
 }
 
 export function removeBlock(block) {
-	const blockID = block._id.slice(1);
-	_post.content.splice(blockID, 1);
+	_post.content.splice(+block._id, 1);
 	const blockNode = document.querySelector(
 		`.post [data-blockid="${block._id}"]`
 	);

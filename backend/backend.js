@@ -37,8 +37,8 @@ export async function updatePost(post, token) {
 	const payload = {
 		post_id: _id,
 		author: author._id,
-		content: JSON.stringify(content.map((block) => block._id)),
-		likes,
+		content: JSON.stringify(content.map((block) => Number(block._id.slice(2)))),
+		likes: JSON.stringify(likes),
 		title,
 	};
 	const response = await fetch(
@@ -53,18 +53,27 @@ export async function updatePost(post, token) {
 			body: JSON.stringify(payload),
 		}
 	);
-	const json = response.json();
+	payload.likes = JSON.parse(payload.likes);
+	payload.content = JSON.parse(payload.content);
 	const res = {
 		errors: [],
 		success: true,
-		post: json,
+		post: payload,
 	};
+	if (response.status > 299) {
+		const json = await response.json();
+		res.success = false;
+		res.errors.push({ msg: json.message });
+	}
 	return res;
 }
 
 export async function updateBlock(block, token) {
+	console.log(block);
 	const payload = { ...block };
-	payload.block_id = payload._id;
+	//In the UI block id cannot be number, so it
+	//starts with "id", which we remove
+	payload.block_id = payload._id.slice(2);
 	delete payload._id;
 	delete payload.errors;
 	//AINIRO stores links as string
@@ -89,7 +98,9 @@ export async function updateBlock(block, token) {
 	if (response.status < 300) {
 		//AINIRO response contain the _id as block_id
 		delete block.block_id;
-		res.block = block;
+		//We cannot use numbers as _id for blocks
+		//because it is index
+		res.block = await getBlock(payload.block_id);
 		res.success = true;
 	} else {
 		res.errors.push({ msg: json.message });
@@ -120,13 +131,14 @@ export async function getPost(ID) {
 }
 
 export async function createBlock(block, token) {
+	const payload = { ...block };
 	const res = {
-		errors: block.errors,
-		block: block,
+		errors: [],
+		block: payload,
 		success: false,
 	};
-	const payload = { ...block };
 	delete payload.errors;
+	payload.links = JSON.stringify(payload.links);
 	const response = await fetch(
 		"https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/blocks",
 		{
@@ -142,27 +154,10 @@ export async function createBlock(block, token) {
 	const json = await response.json();
 	if (response.status < 300 && json.id) {
 		res.success = true;
-		res.block._id = json.id;
-		const post = await getPost(block.post);
-		post.content = !post.content ? [] : post.content;
-		post.content = Array.isArray(post.content)
-			? post.content
-			: Array.from(post.content);
-		post.content.push(json.id);
-		const { author, type, post_id, content, likes } = post;
-		await putPost(
-			{
-				author,
-				type,
-				content,
-				likes,
-				post_id,
-			},
-			token
-		);
-		return res;
-	} else {
-		res.errors.push[{ msg: json.message }];
+		//The block _id cannot be number in the UI
+		//because it is an index. We add "id" to it.
+		res.block._id = "id" + json.id;
+		res.block.links = JSON.parse(payload.links);
 		return res;
 	}
 }
@@ -343,13 +338,16 @@ async function getBlock(ID) {
 	const jsonArr = await response.json();
 	//AINIRO returns an array
 	const json = jsonArr[0];
-	//AINIRO returns null for empty array
-	if (!json.links) json.links = [];
-	json.links = JSON.parse(json.links);
-	//AINIRO uses post_id instead of _id
-	json._id = json.block_id;
-	delete json.block_id;
-	return json;
+	const { block_id, type, language, text, links, post } = json;
+	const res = {
+		_id: `id${block_id}`,
+		type,
+		text,
+		language,
+		links: JSON.parse(links),
+		post,
+	};
+	return res;
 }
 
 async function getContent(content) {

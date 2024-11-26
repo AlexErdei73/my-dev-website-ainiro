@@ -137,16 +137,16 @@ export function viewPost(_postID, edit) {
 	window.location.href = `#post/${postID}`;
 }
 
-getPosts()
-	.then((json) => {
-		posts = json.posts;
-		initPosts(getPublishedPosts());
-		initPost(getPost(postID));
-		initAboutPost(getPost(aboutID));
-		initLogin(loginData);
-		initNewPost(createPost);
-	})
-	.catch((error) => openErrorDlg({ msg: error.message }));
+getPosts().then((json) => {
+	posts = json.posts;
+	initPosts(getPublishedPosts());
+	const post = getPost(postID);
+	initPost(post);
+	initAboutPost(getPost(aboutID));
+	initLogin(loginData);
+	initNewPost(createPost);
+});
+//.catch((error) => openErrorDlg({ msg: error.message }));
 
 async function createPost(post) {
 	post.author = loginData.user._id;
@@ -194,6 +194,7 @@ export async function submitBlock(block) {
 	if (block.type === "code" && block.language === " ") block.language = "html";
 	try {
 		const response = await updateBlock(block, loginData.token);
+		console.log(response);
 		block.errors = response.errors;
 		if (response.success) {
 			delete block.errors;
