@@ -145,8 +145,8 @@ getPosts().then((json) => {
 	initAboutPost(getPost(aboutID));
 	initLogin(loginData);
 	initNewPost(createPost);
-});
-//.catch((error) => openErrorDlg({ msg: error.message }));
+})
+.catch((error) => openErrorDlg({ msg: error.message }));
 
 async function createPost(post) {
 	post.author = loginData.user._id;
