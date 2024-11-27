@@ -121,7 +121,7 @@ export async function getPost(id) {
 			},
 		}
 	);
-	const json = getJSON(response);
+	const json = await getJSON(response);
 	const res = {
 		errors: json.errors,
 		success: json.success,
@@ -175,8 +175,9 @@ export async function createBlock(block, token) {
 }
 
 export async function deleteBlock(block, token) {
-	const response = await fetch(
-		`${BASE_URL}/posts/${block.post}/blocks/${block._id}`,
+	const id = Number(block._id.slice(2));
+	let response = await fetch(
+		`${BASE_URL}blocks?block_id=${id}`,
 		{
 			method: "DELETE",
 			mode: "cors",
@@ -186,7 +187,46 @@ export async function deleteBlock(block, token) {
 			},
 		}
 	);
-	return await getJSON(response);
+	let json = await getJSON(response);
+	const res = {
+		success: json.success,
+		errors: json.errors,
+		block: block
+	}
+	if (!json.success) return res;
+	json = await getPost(block.post);
+	if (!json.success) {
+		res.success = false;
+		res.errors = json.errors;
+		return res;
+	}
+	const post = json.post;
+	const postContent = JSON.parse(post.content);
+	const blockIndex = postContent.indexOf(id);
+	postContent.splice(blockIndex, 1);
+	const payload = {
+		post_id: post._id,
+		content: JSON.stringify(postContent)
+	}
+	response = await fetch(
+		`${BASE_URL}posts`,
+		{
+			method: "PUT",
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: token,
+			},
+			body: JSON.stringify(payload)
+		}
+	);
+	json = await getJSON(response);
+	if (!json.success) {
+		res.success = false;
+		res.errors = json.errors;
+		return res;
+	}
+	return res;
 }
 
 export async function getPosts() {

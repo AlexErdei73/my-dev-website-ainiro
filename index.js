@@ -194,7 +194,6 @@ export async function submitBlock(block) {
 	if (block.type === "code" && block.language === " ") block.language = "html";
 	try {
 		const response = await updateBlock(block, loginData.token);
-		console.log(response);
 		block.errors = response.errors;
 		if (response.success) {
 			delete block.errors;
