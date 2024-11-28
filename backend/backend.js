@@ -268,6 +268,7 @@ export async function getPosts() {
 			post.content = post.content ? JSON.parse(post.content) : [];
 			json = await getContent(post.content);
 			if (!json.success) {
+				console.error(json.errors[0].msg);
 				res.success = false;
 				res.errors.push(json.errors[0]);
 				return res;
@@ -429,18 +430,27 @@ async function getBlock(ID) {
 }
 
 async function getContent(content) {
-	const res = {};
-	res.content = [];
-	for (let i = 0; i < content.length; i++) {
-		const response = await getBlock(content[i]);
-		if (!response.success) {
-			res.success = false;
-			res.errors = response.errors;
-			return res;
-		}
-		res.content.push(response.block);
+	const res = {
+		success: true,
+		errors: [],
+		content: []	
 	}
-	res.success = true;
-	res.errors = [];
+
+	let promises = [];
+	for (var i = 0; i < content.length; i++) {
+		promises.push(getBlock(content[i]));
+	}
+
+	promises = await Promise.all(promises);
+
+	res.content = promises.map((promise) => promise.block);
+	
+	promises.forEach((promise) => {
+		if (promise.success === false) {
+			res.success = false;
+			res.errors.push(promise.errors[0]);
+		}
+	});
+
 	return res;
 }

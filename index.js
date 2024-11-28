@@ -9,7 +9,6 @@ import {
 	postPosts,
 	deletePosts,
 	deleteBlock,
-	createBlock,
 	createUser,
 	updateUser,
 	updatePostLikes,
