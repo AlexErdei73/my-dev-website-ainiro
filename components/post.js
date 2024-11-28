@@ -44,7 +44,7 @@ export async function insertBlock(block) {
 		errors: [],
 	};
 	let index = block
-		? _post.content.findIndex((_block) => _block._id === block._id)
+		? _post.content.findIndex((_block) => _block._id == block._id)
 		: -1;
 	index++;
 	_post.content.splice(index, 0, newBlock);
@@ -101,7 +101,7 @@ export async function swapBlocks() {
 		node.getAttribute("data-blockid")
 	);
 	const indexes = idsToSwap.map((id) =>
-		newPost.content.findIndex((block) => block._id === id)
+		newPost.content.findIndex((block) => block._id == id)
 	);
 	const swapBlock = _post.content[indexes[0]];
 	newPost.content[indexes[0]] = newPost.content[indexes[1]];

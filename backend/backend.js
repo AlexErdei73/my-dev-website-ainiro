@@ -9,7 +9,7 @@ async function getJSON(response) {
 	}
  	if (response.status >= 300) {
 		res.success = false; 
-		res.errors.push({ msg: json.message || json });
+		res.errors.push({ msg: json.message });
 	}
 	return res;
 }
@@ -41,8 +41,8 @@ export async function login(username, password) {
 export async function updatePost(post, token) {
 	const { _id, author, content, likes, title, published } = post;
 	const payload = {
-		post_id: _id,
-		author: author._id,
+		post_id: Number(_id),
+		author: Number(author._id),
 		content: JSON.stringify(content.map((block) => Number(block._id.slice(2)))),
 		likes: JSON.stringify(likes),
 		title,
@@ -61,24 +61,25 @@ export async function updatePost(post, token) {
 		}
 	);
 	const json = await getJSON(response);
-	payload.likes = JSON.parse(payload.likes);
-	payload.content = JSON.parse(payload.content);
+	//payload.likes = JSON.parse(payload.likes);
+	//payload.content = JSON.parse(payload.content);
 	const res = {
 		errors: json.errors,
 		success: json.success,
-		post: payload,
+		post,
 	};
 	return res;
 }
 
 export async function updateBlock(block, token) {
 	const payload = {
-		block_id: block._id.slice(2),
+		block_id: Number(block._id.slice(2)),
 		links: JSON.stringify(block.links),
 		type: block.type,
 		text: block.text,
-		post: block.post
+		post: Number(block.post)
 	};
+	console.log(payload);
 	const response = await fetch(
 		`${BASE_URL}blocks`,
 		{
@@ -91,7 +92,7 @@ export async function updateBlock(block, token) {
 			body: JSON.stringify(payload),
 		}
 	);
-	const json = getJSON(response);
+	const json = await getJSON(response);
 	const res = {
 		errors: json.errors,
 		success: json.success,
@@ -111,6 +112,7 @@ export async function updateBlock(block, token) {
 }
 
 export async function getPost(id) {
+	id = Number(id);
 	const response = await fetch(
 		`${BASE_URL}posts?posts.post_id.eq=${id}`,
 		{
@@ -132,7 +134,7 @@ export async function getPost(id) {
 		if (!res.post.content) res.post.content = [];
 		if (!res.post.likes) res.post.likes = [];
 		//AINIRO uses post_id instead of _id
-		res.post._id = res.post.post_id;
+		res.post._id = res.post.post_id.toString();
 		delete res.post.post_id;
 	}
 	return res;
@@ -140,7 +142,7 @@ export async function getPost(id) {
 
 export async function createBlock(block, token) {
 	const payload = {
-		post: block.post,
+		post: Number(block.post),
 		type: block.type,
 		text: block.text,
 		links: JSON.stringify(block.links),
@@ -165,7 +167,7 @@ export async function createBlock(block, token) {
 	if (res.success) {		
 		res.block = {
 			_id: "id" + json.response.id,
-			post: payload.post,
+			post: payload.post.toString(),
 			type: payload.type,
 			text: payload.text,
 			links: JSON.parse(payload.links)
@@ -176,22 +178,11 @@ export async function createBlock(block, token) {
 
 export async function deleteBlock(block, token) {
 	const id = Number(block._id.slice(2));
-	let response = await fetch(
-		`${BASE_URL}blocks?block_id=${id}`,
-		{
-			method: "DELETE",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-		}
-	);
-	let json = await getJSON(response);
+	let json = await delBlock(id, token);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-		block: block
+		block
 	}
 	if (!json.success) return res;
 	json = await getPost(block.post);
@@ -205,10 +196,10 @@ export async function deleteBlock(block, token) {
 	const blockIndex = postContent.indexOf(id);
 	postContent.splice(blockIndex, 1);
 	const payload = {
-		post_id: post._id,
+		post_id: Number(post._id),
 		content: JSON.stringify(postContent)
 	}
-	response = await fetch(
+	const response = await fetch(
 		`${BASE_URL}posts`,
 		{
 			method: "PUT",
@@ -251,17 +242,17 @@ export async function getPosts() {
 		//Popolate authors and content in posts
 		for (let i = 0; i < jsonArr.length; i++) {
 			const post = jsonArr[i];
-			let json = await getAuthor(post.author);
+			let json = await getAuthor(Number(post.author));
 			if (!json.success) {
 				res.success = false;
 				res.errors.push(json.errors[0]);
 				return res;
 			}
 			const author = json.author;
-			author._id = author.user_id;
+			author._id = author.user_id.toString();
 			delete author.user_id;
 			post.author = author;
-			post._id = post.post_id;
+			post._id = post.post_id.toString();
 			delete post.post_id;
 			post.published = post.published ? !!post.published : false;
 			post.likes = post.likes ? JSON.parse(post.likes) : [];
@@ -286,8 +277,8 @@ export async function postPosts(post, token) {
 	const payload = {
 		title: post.title,
 		author: post.author,
-		content: JSON.stringify(post.content),
-		likes: JSON.stringify(post.likes),
+		content: JSON.stringify(post.content || []),
+		likes: JSON.stringify(post.likes || []),
 	}
 	const response = await fetch(
 		`${BASE_URL}posts`,
@@ -309,26 +300,26 @@ export async function postPosts(post, token) {
 	if (!res.success) {
 		return res;
 	}
-	json = await getPost(json.id);
+	json = await getPost(json.response.id);
 	if (!json.success) {
 		res.success = false;
 		res.errors.push(json.errors[0]);
 		return res;
 	}
 	res.post = {
-		_id: json.response.post_id,
-		author: json.response.author,
-		title: json.response.title,
-		content: JSON.parse(json.response.content),
-		likes: JSON.parse(json.response.likes),
-		createdAt: json.response.createdAt,
-		updatedAt: json.response.updatedAt
+		_id: json.post._id.toString(),
+		author: json.post.author,
+		title: json.post.title,
+		content: JSON.parse(json.post.content),
+		likes: JSON.parse(json.post.likes),
+		createdAt: json.post.createdAt,
+		updatedAt: json.post.updatedAt
 	}
 	return res;
 }
 
 export async function deletePosts(post, token) {
-	const response = await fetch(`${BASE_URL}/posts/${post._id}`, {
+	let response = await fetch(`${BASE_URL}posts?post_id=${post._id}`, {
 		method: "DELETE",
 		mode: "cors",
 		headers: {
@@ -336,7 +327,19 @@ export async function deletePosts(post, token) {
 			Authorization: token,
 		},
 	});
-	return await getJSON(response);
+	let json = await getJSON(response);
+	const res = {
+		success: json.success,
+		errors: json.errors,
+	}
+	if (!json.success) return res;
+	const content = post.content.map((block) => Number(block._id.slice(2)));
+	json = await deleteContent(content);
+	res.success = json.success;
+	res.errors = json.errors;
+	if (!json.success) return res;
+	res.post = post;
+	return res;
 }
 
 export async function createUser(user) {
@@ -380,7 +383,7 @@ export async function updatePostLikes(postId, userId) {
 
 async function getAuthor(id) {
 	const response = await fetch(
-		`https://alexerdei-team.us.ainiro.io/magic/modules/blog-api/users?users.user_id.eq=${id}`,
+		`${BASE_URL}users?users.user_id.eq=${id}`,
 		{
 			mode: "cors",
 			headers: {
@@ -429,7 +432,28 @@ async function getBlock(ID) {
 	return res;
 }
 
-async function getContent(content) {
+async function delBlock(id, token) {
+	let response = await fetch(
+		`${BASE_URL}blocks?block_id=${id}`,
+		{
+			method: "DELETE",
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: token,
+			},
+		}
+	);
+	let json = await getJSON(response);
+	const res = {
+		success: json.success,
+		errors: json.errors,
+		block: json.response
+	}
+	return res;
+}
+
+async function forEach(content, callback, fieldName) {
 	const res = {
 		success: true,
 		errors: [],
@@ -438,12 +462,12 @@ async function getContent(content) {
 
 	let promises = [];
 	for (var i = 0; i < content.length; i++) {
-		promises.push(getBlock(content[i]));
+		promises.push(callback(content[i]));
 	}
 
 	promises = await Promise.all(promises);
 
-	res.content = promises.map((promise) => promise.block);
+	res.content = promises.map((promise) => promise[fieldName]);
 	
 	promises.forEach((promise) => {
 		if (promise.success === false) {
@@ -453,4 +477,12 @@ async function getContent(content) {
 	});
 
 	return res;
+}
+
+async function getContent(content) {
+	return await forEach(content, getBlock, "block");
+}
+
+async function deleteContent(content) {
+	return await forEach(content, delBlock, "block_id");
 }

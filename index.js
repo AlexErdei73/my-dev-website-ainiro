@@ -54,11 +54,11 @@ export let loginData = {
 	msg: "",
 };
 
-const aboutID = 103;
+const aboutID = 106;
 let postID;
 
 export function getPost(_postID) {
-	return posts.filter((post) => post._id === _postID)[0];
+	return posts.filter((post) => post._id == _postID)[0];
 }
 
 function getPublishedPosts() {
@@ -67,12 +67,13 @@ function getPublishedPosts() {
 
 async function erasePost(post) {
 	try {
+		console.log(post);
 		const response = await deletePosts(post, loginData.token);
 		if (!response.success) {
 			showErrorMsg(response.errors[0].msg);
 		} else {
 			closeModal();
-			const postIndex = posts.findIndex((post) => post._id === postID);
+			const postIndex = posts.findIndex((pst) => pst._id == post._id);
 			posts.splice(postIndex, 1);
 			initPosts(getPublishedPosts());
 			initLogin(loginData);
@@ -194,13 +195,15 @@ export async function submitBlock(block) {
 	try {
 		const response = await updateBlock(block, loginData.token);
 		block.errors = response.errors;
+		console.log(response);
 		if (response.success) {
 			delete block.errors;
-			const post = posts.find((post) => post._id === block.post);
+			const post = posts.find((post) => post._id == block.post);
+			console.log(post);
 			const blockIndex = post.content.findIndex(
-				(blck) => blck._id === block._id
+				(blck) => blck._id == block._id
 			);
-			post.content[blockIndex] = block;
+			post.content[blockIndex] = { ...block };
 		}
 	} catch (error) {
 		block.errors = [{ msg: error.message }];
@@ -216,8 +219,8 @@ export async function submitBlock(block) {
 }
 
 export async function remove(block) {
-	const post = posts.find((post) => post._id === block.post);
-	const index = post.content.findIndex((blck) => blck._id === block._id);
+	const post = posts.find((post) => post._id == block.post);
+	const index = post.content.findIndex((blck) => blck._id == block._id);
 	try {
 		const response = await deleteBlock(block, loginData.token);
 		if (response.success) {
@@ -235,7 +238,7 @@ export async function remove(block) {
 export async function submitTitle(newPost) {
 	let _errors = [];
 	const editTitleNode = document.querySelector(".post .edit-title");
-	const post = posts.find((post) => post._id === newPost._id);
+	const post = posts.find((post) => post._id == newPost._id);
 	try {
 		const response = await updatePost(newPost, loginData.token);
 		if (response.success) {
@@ -268,7 +271,7 @@ export function logout() {
 
 function updateAuthorInPosts(author) {
 	posts.forEach((post) => {
-		if (post.author._id === author._id) post.author = author;
+		if (post.author._id == author._id) post.author = author;
 	});
 }
 

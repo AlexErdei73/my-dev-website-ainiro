@@ -6,7 +6,7 @@ import { updateSignupLinkText } from "./navigationBar.js";
 import { fillInUserForm, setLoginSuccess, togglePassword } from "./signup.js";
 
 function getUserPosts(posts, userID) {
-  return posts.filter((post) => post.author._id === userID);
+  return posts.filter((post) => post.author._id == userID);
 }
 
 export function initLogin(loginData) {
