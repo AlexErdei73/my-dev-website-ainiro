@@ -54,7 +54,7 @@ export let loginData = {
 	msg: "",
 };
 
-const aboutID = 106;
+const aboutID = "152";
 let postID;
 
 export function getPost(_postID) {
@@ -195,11 +195,9 @@ export async function submitBlock(block) {
 	try {
 		const response = await updateBlock(block, loginData.token);
 		block.errors = response.errors;
-		console.log(response);
 		if (response.success) {
 			delete block.errors;
 			const post = posts.find((post) => post._id == block.post);
-			console.log(post);
 			const blockIndex = post.content.findIndex(
 				(blck) => blck._id == block._id
 			);

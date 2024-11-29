@@ -61,8 +61,6 @@ export async function updatePost(post, token) {
 		}
 	);
 	const json = await getJSON(response);
-	//payload.likes = JSON.parse(payload.likes);
-	//payload.content = JSON.parse(payload.content);
 	const res = {
 		errors: json.errors,
 		success: json.success,
@@ -77,9 +75,9 @@ export async function updateBlock(block, token) {
 		links: JSON.stringify(block.links),
 		type: block.type,
 		text: block.text,
-		post: Number(block.post)
+		post: Number(block.post),
+		language: block.language
 	};
-	console.log(payload);
 	const response = await fetch(
 		`${BASE_URL}blocks`,
 		{
@@ -146,6 +144,7 @@ export async function createBlock(block, token) {
 		type: block.type,
 		text: block.text,
 		links: JSON.stringify(block.links),
+		language: " "
 	};
 	const response = await fetch(
 		`${BASE_URL}blocks`,
