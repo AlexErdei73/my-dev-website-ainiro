@@ -208,7 +208,7 @@ export async function submitBlock(block) {
 	} finally {
 		const blockNode = initBlock(block, true);
 		const oldBlockNode = document.querySelector(
-			`[data-blockid="${block._id}"]`
+			`.post [data-blockid="${block._id}"]`
 		);
 		oldBlockNode.parentNode.replaceChild(blockNode, oldBlockNode);
 		if (block.errors) initEditBlock(block);

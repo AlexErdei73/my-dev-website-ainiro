@@ -24,6 +24,7 @@ function textWithLinks(block) {
 }
 
 export function initEditBlock(block) {
+	console.log(block);
 	const editBlockNode = importTemp(20);
 	editBlockNode.setAttribute("data-blockid", block._id);
 	const cancelButton = editBlockNode.querySelector(".buttons .cancel");
@@ -73,8 +74,11 @@ export function initEditBlock(block) {
 	swapButton.addEventListener("click", function () {
 		swapBlocks();
 	});
-	const blockNode = document.querySelector(`[data-blockid="${block._id}"]`);
+	const blockNode = document.querySelector(`.post [data-blockid="${block._id}"]`);
 	insertErrorMessages(editBlockNode, block.errors);
+	console.log(blockNode.parentNode);
+	console.log(blockNode);
+	console.log(editBlockNode);
 	blockNode.parentNode.replaceChild(editBlockNode, blockNode);
 }
 
