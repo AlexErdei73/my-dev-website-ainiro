@@ -71,13 +71,13 @@ export async function insertBlock(block) {
 			if (_post.content.length === index + 1) {
 				const lastNodeID = _post.content[index - 1]._id;
 				const lastNode = document.querySelector(
-					`[data-blockid="${lastNodeID}"]`
+					`.post [data-blockid="${lastNodeID}"]`
 				);
 				lastNode.parentNode.appendChild(initBlock(newBlock, true));
 			} else {
 				const nextNodeID = _post.content[index + 1]._id;
 				const nextNode = document.querySelector(
-					`[data-blockid="${nextNodeID}"]`
+					`.post [data-blockid="${nextNodeID}"]`
 				);
 				nextNode.parentNode.insertBefore(initBlock(newBlock, true), nextNode);
 			}
