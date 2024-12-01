@@ -255,6 +255,7 @@ export async function getPosts() {
 			delete post.post_id;
 			post.published = post.published ? !!post.published : false;
 			post.likes = post.likes ? JSON.parse(post.likes) : [];
+			if (!Array.isArray(post.likes)) post.likes = [];
 			post.content = post.content ? JSON.parse(post.content) : [];
 			json = await getContent(post.content);
 			if (!json.success) {
@@ -368,15 +369,18 @@ export async function updateUser(user, token) {
 }
 
 export async function updatePostLikes(postId, userId) {
-	const response = await fetch(`${BASE_URL}/posts/${postId}/likes`, {
+	const response = await fetch(`${BASE_URL}post-likes`, {
 		method: "PUT",
 		mode: "cors",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ user: userId }),
+		body: JSON.stringify({ 
+			user_id: Number(userId),
+			post_id: Number(postId),
+		}),
 	});
-	const json = await response.json();
+	const json = await getJSON(response);
 	return json;
 }
 
