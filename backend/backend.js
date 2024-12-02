@@ -319,13 +319,21 @@ export async function deletePosts(post, token) {
 }
 
 export async function createUser(user) {
-	const response = await fetch(`${BASE_URL}/users`, {
+	const { username, password, bio, jobTitle, name } = user;
+	const payload = {
+		username,
+		password,
+		bio,
+		jobTitle,
+		name,
+	};
+	const response = await fetch(`${BASE_URL}register`, {
 		method: "POST",
 		mode: "cors",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify(user),
+		body: JSON.stringify(payload),
 	});
 	const json = await response.json();
 	return json;
