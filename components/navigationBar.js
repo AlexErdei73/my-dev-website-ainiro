@@ -21,7 +21,7 @@ function updateDOM(index) {
   if (prevIndex >= 0) nodes[prevIndex].classList.add("hidden");
   nodes[index].classList.remove("hidden");
   prevIndex = index;
-  const title = `${components[index]} page - My Dev Website Vanilla`;
+  const title = `${components[index]} page - My Dev Website AINIRO`;
   titleNode.textContent = title;
   pageTitleLiveRegion.textContent = title;
 
