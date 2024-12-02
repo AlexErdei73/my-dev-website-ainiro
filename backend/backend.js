@@ -318,7 +318,7 @@ export async function deletePosts(post, token) {
 	return res;
 }
 
-export async function createUser(user) {
+export async function createUser(user, token) {
 	const { username, password, bio, jobTitle, name } = user;
 	const payload = {
 		username,
@@ -326,6 +326,7 @@ export async function createUser(user) {
 		bio,
 		jobTitle,
 		name,
+		recaptcha_token: token,
 	};
 	const response = await fetch(`${BASE_URL}register`, {
 		method: "POST",

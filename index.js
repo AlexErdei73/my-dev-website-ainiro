@@ -292,17 +292,24 @@ function handleUserErrors(user, errors) {
 }
 
 export async function submitUser(user) {
-	try {
-		const response = await createUser(user);
-		logout();
-		if (!response.success) {
-			handleUserErrors(user, response.errors);
-		} else {
-			submitLogin(user);
-		}
-	} catch (error) {
-		handleUserErrors(user, [{ msg: error.message }]);
-	}
+	grecaptcha.ready(function () {
+		grecaptcha
+			.execute("6Ld60IQqAAAAALQMZFFdyBPhR_8s-fAlreAC4Sp7", { action: "submit" })
+			.then(async function (token) {
+				// Add your logic to submit to your backend server here.
+				try {
+					const response = await createUser(user, token);
+					logout();
+					if (!response.success) {
+						handleUserErrors(user, response.errors);
+					} else {
+						submitLogin(user);
+					}
+				} catch (error) {
+					handleUserErrors(user, [{ msg: error.message }]);
+				}
+			});
+	});
 }
 
 export async function modifyUser(user) {
