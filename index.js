@@ -67,7 +67,6 @@ function getPublishedPosts() {
 
 async function erasePost(post) {
 	try {
-		console.log(post);
 		const response = await deletePosts(post, loginData.token);
 		if (!response.success) {
 			showErrorMsg(response.errors[0].msg);
@@ -137,16 +136,17 @@ export function viewPost(_postID, edit) {
 	window.location.href = `#post/${postID}`;
 }
 
-getPosts().then((json) => {
-	posts = json.posts;
-	initPosts(getPublishedPosts());
-	const post = getPost(postID);
-	initPost(post);
-	initAboutPost(getPost(aboutID));
-	initLogin(loginData);
-	initNewPost(createPost);
-})
-.catch((error) => openErrorDlg({ msg: error.message }));
+getPosts()
+	.then((json) => {
+		posts = json.posts;
+		initPosts(getPublishedPosts());
+		const post = getPost(postID);
+		initPost(post);
+		initAboutPost(getPost(aboutID));
+		initLogin(loginData);
+		initNewPost(createPost);
+	})
+	.catch((error) => openErrorDlg({ msg: error.message }));
 
 async function createPost(post) {
 	post.author = loginData.user._id;

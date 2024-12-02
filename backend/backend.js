@@ -5,28 +5,25 @@ async function getJSON(response) {
 	const res = {
 		success: true,
 		errors: [],
-		response: json
-	}
- 	if (response.status >= 300) {
-		res.success = false; 
+		response: json,
+	};
+	if (response.status >= 300) {
+		res.success = false;
 		res.errors.push({ msg: json.message });
 	}
 	return res;
 }
 
 export async function login(username, password) {
-	const response = await fetch(
-		`${BASE_URL}login`,
-		{
-			method: "POST",
-			mode: "cors",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				username: username,
-				password: password,
-			}),
-		}
-	);
+	const response = await fetch(`${BASE_URL}login`, {
+		method: "POST",
+		mode: "cors",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
+			username: username,
+			password: password,
+		}),
+	});
 	const json = await response.json();
 	//AINIRO response in case of error contains message field instead of msg
 	if (!json.success) json.msg = json.message;
@@ -46,20 +43,17 @@ export async function updatePost(post, token) {
 		content: JSON.stringify(content.map((block) => Number(block._id.slice(2)))),
 		likes: JSON.stringify(likes),
 		title,
-		published
+		published,
 	};
-	const response = await fetch(
-		`${BASE_URL}posts`,
-		{
-			method: "PUT",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-			body: JSON.stringify(payload),
-		}
-	);
+	const response = await fetch(`${BASE_URL}posts`, {
+		method: "PUT",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token,
+		},
+		body: JSON.stringify(payload),
+	});
 	const json = await getJSON(response);
 	const res = {
 		errors: json.errors,
@@ -76,20 +70,17 @@ export async function updateBlock(block, token) {
 		type: block.type,
 		text: block.text,
 		post: Number(block.post),
-		language: block.language
+		language: block.language,
 	};
-	const response = await fetch(
-		`${BASE_URL}blocks`,
-		{
-			method: "PUT",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-			body: JSON.stringify(payload),
-		}
-	);
+	const response = await fetch(`${BASE_URL}blocks`, {
+		method: "PUT",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token,
+		},
+		body: JSON.stringify(payload),
+	});
 	const json = await getJSON(response);
 	const res = {
 		errors: json.errors,
@@ -111,21 +102,18 @@ export async function updateBlock(block, token) {
 
 export async function getPost(id) {
 	id = Number(id);
-	const response = await fetch(
-		`${BASE_URL}posts?posts.post_id.eq=${id}`,
-		{
-			method: "GET",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		}
-	);
+	const response = await fetch(`${BASE_URL}posts?posts.post_id.eq=${id}`, {
+		method: "GET",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 	const json = await getJSON(response);
 	const res = {
 		errors: json.errors,
 		success: json.success,
-	}
+	};
 	if (res.success) {
 		res.post = json.response[0];
 		//AINIRO returns null for empty array
@@ -144,33 +132,30 @@ export async function createBlock(block, token) {
 		type: block.type,
 		text: block.text,
 		links: JSON.stringify(block.links),
-		language: " "
+		language: " ",
 	};
-	const response = await fetch(
-		`${BASE_URL}blocks`,
-		{
-			method: "POST",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-			body: JSON.stringify(payload),
-		}
-	);
+	const response = await fetch(`${BASE_URL}blocks`, {
+		method: "POST",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token,
+		},
+		body: JSON.stringify(payload),
+	});
 	const json = await getJSON(response);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-	}
-	if (res.success) {		
+	};
+	if (res.success) {
 		res.block = {
 			_id: "id" + json.response.id,
 			post: payload.post.toString(),
 			type: payload.type,
 			text: payload.text,
-			links: JSON.parse(payload.links)
-		}
+			links: JSON.parse(payload.links),
+		};
 	}
 	return res;
 }
@@ -181,8 +166,8 @@ export async function deleteBlock(block, token) {
 	const res = {
 		success: json.success,
 		errors: json.errors,
-		block
-	}
+		block,
+	};
 	if (!json.success) return res;
 	json = await getPost(block.post);
 	if (!json.success) {
@@ -196,20 +181,17 @@ export async function deleteBlock(block, token) {
 	postContent.splice(blockIndex, 1);
 	const payload = {
 		post_id: Number(post._id),
-		content: JSON.stringify(postContent)
-	}
-	const response = await fetch(
-		`${BASE_URL}posts`,
-		{
-			method: "PUT",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-			body: JSON.stringify(payload)
-		}
-	);
+		content: JSON.stringify(postContent),
+	};
+	const response = await fetch(`${BASE_URL}posts`, {
+		method: "PUT",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token,
+		},
+		body: JSON.stringify(payload),
+	});
 	json = await getJSON(response);
 	if (!json.success) {
 		res.success = false;
@@ -220,22 +202,19 @@ export async function deleteBlock(block, token) {
 }
 
 export async function getPosts() {
-	const response = await fetch(
-		`${BASE_URL}posts`,
-		{
-			method: "GET",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		}
-	);
+	const response = await fetch(`${BASE_URL}posts`, {
+		method: "GET",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 	const json = await getJSON(response);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-	}
-	if (res.success) { 
+	};
+	if (res.success) {
 		//We get an array of posts
 		const jsonArr = json.response;
 		//Popolate authors and content in posts
@@ -279,24 +258,21 @@ export async function postPosts(post, token) {
 		author: post.author,
 		content: JSON.stringify(post.content || []),
 		likes: JSON.stringify(post.likes || []),
-	}
-	const response = await fetch(
-		`${BASE_URL}posts`,
-		{
-			method: "POST",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-			body: JSON.stringify(payload),
-		}
-	);
+	};
+	const response = await fetch(`${BASE_URL}posts`, {
+		method: "POST",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token,
+		},
+		body: JSON.stringify(payload),
+	});
 	let json = await getJSON(response);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-	}
+	};
 	if (!res.success) {
 		return res;
 	}
@@ -313,13 +289,20 @@ export async function postPosts(post, token) {
 		content: JSON.parse(json.post.content),
 		likes: JSON.parse(json.post.likes),
 		createdAt: json.post.createdAt,
-		updatedAt: json.post.updatedAt
-	}
+		updatedAt: json.post.updatedAt,
+	};
 	return res;
 }
 
 export async function deletePosts(post, token) {
-	let response = await fetch(`${BASE_URL}posts?post_id=${post._id}`, {
+	const content = post.content.map((block) => Number(block._id.slice(2)));
+	let json = await deleteContent(content, token);
+	const res = {
+		success: json.success,
+		errors: json.errors,
+	};
+	if (!json.success) return res;
+	const response = await fetch(`${BASE_URL}posts?post_id=${post._id}`, {
 		method: "DELETE",
 		mode: "cors",
 		headers: {
@@ -327,14 +310,7 @@ export async function deletePosts(post, token) {
 			Authorization: token,
 		},
 	});
-	let json = await getJSON(response);
-	const res = {
-		success: json.success,
-		errors: json.errors,
-	}
-	if (!json.success) return res;
-	const content = post.content.map((block) => Number(block._id.slice(2)));
-	json = await deleteContent(content);
+	json = await getJSON(response);
 	res.success = json.success;
 	res.errors = json.errors;
 	if (!json.success) return res;
@@ -361,8 +337,8 @@ export async function updateUser(user, token) {
 		user_id: Number(_id),
 		name,
 		bio,
-		jobTitle
-	}
+		jobTitle,
+	};
 	const response = await fetch(`${BASE_URL}/users`, {
 		method: "PUT",
 		mode: "cors",
@@ -376,8 +352,8 @@ export async function updateUser(user, token) {
 	const res = {
 		success: json.success,
 		errors: json.errors,
-		user: null 
-	}
+		user: null,
+	};
 	if (!json.success) return res;
 	res.user = user;
 	return res;
@@ -390,7 +366,7 @@ export async function updatePostLikes(postId, userId) {
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ 
+		body: JSON.stringify({
 			user_id: Number(userId),
 			post_id: Number(postId),
 		}),
@@ -400,20 +376,17 @@ export async function updatePostLikes(postId, userId) {
 }
 
 async function getAuthor(id) {
-	const response = await fetch(
-		`${BASE_URL}users?users.user_id.eq=${id}`,
-		{
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		}
-	);
+	const response = await fetch(`${BASE_URL}users?users.user_id.eq=${id}`, {
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 	const json = await getJSON(response);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-	}
+	};
 	if (!res.success) return res;
 	//AINIRO returns an array
 	res.author = json.response[0];
@@ -421,21 +394,18 @@ async function getAuthor(id) {
 }
 
 async function getBlock(ID) {
-	const response = await fetch(
-		`${BASE_URL}blocks?blocks.block_id.eq=${ID}`,
-		{
-			method: "GET",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-			},
-		}
-	);
+	const response = await fetch(`${BASE_URL}blocks?blocks.block_id.eq=${ID}`, {
+		method: "GET",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 	const json = await getJSON(response);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-	}
+	};
 	if (!res.success) return res;
 	const { block_id, type, language, text, links, post } = json.response[0];
 	const block = {
@@ -451,23 +421,20 @@ async function getBlock(ID) {
 }
 
 async function delBlock(id, token) {
-	let response = await fetch(
-		`${BASE_URL}blocks?block_id=${id}`,
-		{
-			method: "DELETE",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: token,
-			},
-		}
-	);
+	let response = await fetch(`${BASE_URL}blocks?block_id=${id}`, {
+		method: "DELETE",
+		mode: "cors",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token,
+		},
+	});
 	let json = await getJSON(response);
 	const res = {
 		success: json.success,
 		errors: json.errors,
-		block: json.response
-	}
+		block: json.response,
+	};
 	return res;
 }
 
@@ -475,8 +442,8 @@ async function forEach(content, callback, fieldName) {
 	const res = {
 		success: true,
 		errors: [],
-		content: []	
-	}
+		content: [],
+	};
 
 	let promises = [];
 	for (var i = 0; i < content.length; i++) {
@@ -486,7 +453,7 @@ async function forEach(content, callback, fieldName) {
 	promises = await Promise.all(promises);
 
 	res.content = promises.map((promise) => promise[fieldName]);
-	
+
 	promises.forEach((promise) => {
 		if (promise.success === false) {
 			res.success = false;
@@ -501,6 +468,10 @@ async function getContent(content) {
 	return await forEach(content, getBlock, "block");
 }
 
-async function deleteContent(content) {
-	return await forEach(content, delBlock, "block_id");
+async function deleteContent(content, token) {
+	return await forEach(
+		content,
+		(blockId) => delBlock(blockId, token),
+		"block_id"
+	);
 }
