@@ -258,6 +258,7 @@ export async function postPosts(post, token) {
 		author: post.author,
 		content: JSON.stringify(post.content || []),
 		likes: JSON.stringify(post.likes || []),
+		published: Number(post.published),
 	};
 	const response = await fetch(`${BASE_URL}posts`, {
 		method: "POST",
