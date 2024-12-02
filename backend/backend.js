@@ -356,16 +356,31 @@ export async function createUser(user) {
 }
 
 export async function updateUser(user, token) {
-	const response = await fetch(`${BASE_URL}/users/${user._id}`, {
+	const { _id, name, bio, jobTitle } = user;
+	const payload = {
+		user_id: Number(_id),
+		name,
+		bio,
+		jobTitle
+	}
+	const response = await fetch(`${BASE_URL}/users`, {
 		method: "PUT",
 		mode: "cors",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: token,
 		},
-		body: JSON.stringify(user),
+		body: JSON.stringify(payload),
 	});
-	return await getJSON(response);
+	const json = await getJSON(response);
+	const res = {
+		success: json.success,
+		errors: json.errors,
+		user: null 
+	}
+	if (!json.success) return res;
+	res.user = user;
+	return res;
 }
 
 export async function updatePostLikes(postId, userId) {
