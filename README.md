@@ -1,16 +1,6 @@
-# my-dev-website-vanilla
+# my-dev-website-ainiro
 
-This is a version of the project with only vanilla tools on the front end. The
-original project can be found in the React version
-[here](https://github.com/AlexErdei73/my-dev-website). The API on the back-end
-was made by me too and can be found
-[here](https://github.com/AlexErdei73/blog-api). The project would be better
-with server-side rendering, because a blogging site should have a better search
-engine optimisation. At some point, I should make a multi-page application from it,
-but at the moment I keep the less suitable JamStack architecture according to
-the [Odin Project](https://www.theodinproject.com/lessons/nodejs-blog-api).
-Thanks to [Hajime Yamasaki Vukelic](https://github.com/foxbunny) for his constructive
-criticism and for letting me know about the possibilities and advantages of vanilla
-development. I will still get back to the non-vanilla versions to make these work
-the same as this code. I would point you to Hajime's [vanilla-patterns](https://github.com/foxbunny/vanilla-patterns-2)
-which is the inspiration behind this project and uses ideas from there.
+This is a version of the project with the [AINIRO Magic](https://docs.ainiro.io/) back-end. The
+original vanilla project, which uses my custom built express API is 
+[here](https://github.com/AlexErdei73/my-dev-website-vanilla). 
+I made this project from curiosity. AINIRO Magic is a backend framework, which can generate REST APIs with a few clicks from the database scheme, what you can define on a GUI as well. The system has great AI integration and has well built user authentication out of the box. The low code or no code approach is based on the [Hyperlambda](https://www.youtube.com/playlist?list=PLgyI389Eb9HNlhKpF9EHXO7D1EE7_dklg) language. This is a 4th generation language, which makes possible to untilize the functionality of the [.NET](https://dotnet.microsoft.com/en-us/learn/dotnet/what-is-dotnet) platform much faster than the C# programming language. To learn all this in C# can take you years, but in Hyperlambda it can be days or weeks. Your productivity in Magic can be unimaginable high compared to the usual ways of back-end development methods. It adds great AI code generation and AI integration in your hands, not to mention ways to implement things, which can be lengthy and complex, like user authentication or payment integration a breeze. You can buy a simple cloud based deployment of Magic [here](https://ainiro.io).
